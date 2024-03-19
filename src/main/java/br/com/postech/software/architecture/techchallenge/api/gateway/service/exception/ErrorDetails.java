@@ -5,7 +5,7 @@ public class ErrorDetails {
 	private int httpStatus;
 	private String titulo;
 	private String mensagem;
-	
+
 	public ErrorDetails() {
 		super();
 	}

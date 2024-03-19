@@ -14,5 +14,4 @@ public class DateSerializer implements JsonSerializer<Date> {
 	public JsonElement serialize(Date date, Type typeOfSrc, JsonSerializationContext context) {
 		return date == null ? null : new JsonPrimitive(date.getTime());
 	}
-
 }
