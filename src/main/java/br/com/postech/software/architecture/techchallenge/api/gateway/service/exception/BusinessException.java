@@ -10,18 +10,18 @@ import lombok.EqualsAndHashCode;
 public class BusinessException extends ApplicationException {
 	private static final long serialVersionUID = 1L;
 	private HttpStatus httpStatus;
-	
+
 	public BusinessException(HttpStatus httpStatus, String mensagem) {
 		super(mensagem);
 		this.httpStatus = httpStatus;
 	}
-	
-    public BusinessException(String mensagem) {
-        super(mensagem);
-    }
 
-    public BusinessException(String mensagem, Throwable cause) {
-        super(mensagem, cause);
-    }
+	public BusinessException(String mensagem) {
+		super(mensagem);
+	}
+
+	public BusinessException(String mensagem, Throwable cause) {
+		super(mensagem, cause);
+	}
 
 }

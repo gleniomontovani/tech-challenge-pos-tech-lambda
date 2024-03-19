@@ -55,27 +55,28 @@ public class GatewayClienteController {
 	public Object salvarCliente(@AuthenticationPrincipal Jwt principal, @RequestBody Cliente cliente) throws Exception {
 		proxy.setJwt(principal);
 		proxy.setResource(properties.getSave());
-		
+
 		return proxy.post(cliente);
 	}
 
 	@PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 	@PreAuthorize("hasAuthority('SCOPE_fiap/postech/techchallenge')")
-	public Object atualizarCliente(@AuthenticationPrincipal Jwt principal, @PathVariable Long id, @RequestBody Cliente cliente) throws Exception {
+	public Object atualizarCliente(@AuthenticationPrincipal Jwt principal, @PathVariable Long id,
+			@RequestBody Cliente cliente) throws Exception {
 		proxy.setJwt(principal);
 		proxy.setResource(properties.getUpdate());
 		String pathParam = Objects.nonNull(id) ? id.toString() : null;
-		
+
 		return proxy.put(cliente, pathParam);
 	}
 
 	@PutMapping(value = "/desativar/{id}", produces = MediaType.APPLICATION_JSON)
 	@PreAuthorize("hasAuthority('SCOPE_fiap/postech/techchallenge')")
-    public Object desativarCliente(@AuthenticationPrincipal Jwt principal, @PathVariable Long id) throws Exception {
+	public Object desativarCliente(@AuthenticationPrincipal Jwt principal, @PathVariable Long id) throws Exception {
 		proxy.setJwt(principal);
 		proxy.setResource(properties.getDelete());
 		String pathParam = Objects.nonNull(id) ? id.toString() : null;
-		
+
 		return proxy.delete(pathParam);
 	}
 }

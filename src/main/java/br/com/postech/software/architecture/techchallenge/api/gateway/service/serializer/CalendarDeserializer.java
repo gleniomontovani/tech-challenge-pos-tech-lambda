@@ -20,7 +20,7 @@ public class CalendarDeserializer implements JsonDeserializer<Calendar>, JsonSer
 
 	@Override
 	public Calendar deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-	        throws JsonParseException {
+			throws JsonParseException {
 		String dateAsString = json.getAsString();
 		try {
 			Date date = formatter.parse(dateAsString);
@@ -36,5 +36,4 @@ public class CalendarDeserializer implements JsonDeserializer<Calendar>, JsonSer
 	public JsonElement serialize(Calendar src, Type typeOfSrc, JsonSerializationContext context) {
 		return new JsonPrimitive(formatter.format(src.getTime()));
 	}
-
 }

@@ -10,14 +10,14 @@ public class ApplicationException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	public ApplicationException(String mensagem) {
-        super(mensagem);
-    }
-	
+		super(mensagem);
+	}
+
 	public ApplicationException(Throwable throwable) {
 		super(throwable);
 	}
 
-    public ApplicationException(String mensagem, final Throwable throwable) {
-        super(mensagem, throwable);
-    }
+	public ApplicationException(String mensagem, final Throwable throwable) {
+		super(mensagem, throwable);
+	}
 }

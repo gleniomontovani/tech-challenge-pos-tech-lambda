@@ -16,7 +16,8 @@ import br.com.postech.software.architecture.techchallenge.api.gateway.service.ut
 public final class DateDeserializer implements JsonDeserializer<Date> {
 
 	@Override
-	public Date deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
+	public Date deserialize(JsonElement element, Type type, JsonDeserializationContext context)
+			throws JsonParseException {
 
 		Date date = null;
 		if (element != null) {
@@ -29,5 +30,4 @@ public final class DateDeserializer implements JsonDeserializer<Date> {
 
 		return date;
 	}
-
 }

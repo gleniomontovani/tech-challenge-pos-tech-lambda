@@ -51,28 +51,28 @@ import org.springframework.stereotype.Component;
 public class Proxy implements HttpAdapter {
 	private static final Gson GSON = new GsonBuilder().registerTypeAdapter(Date.class, getDateSerializer())
 			.registerTypeAdapter(Date.class, getDateDeserializer()).setPrettyPrinting().create();
-	
-    private static final String AUTORIZATION 	  =	"Authorization";
-    private static final String BEARER 		 	  =	"Bearer ";
-    
-    private static final int 	OK 				  = 200;
-    private Jwt jwt;
-    private String resource;
-    
-    private final ApiGatewayClientProperties properties;
-    
-    @Override
-    public <T> T get(Class<T> tipo) throws Exception {
+
+	private static final String AUTORIZATION = "Authorization";
+	private static final String BEARER = "Bearer ";
+
+	private static final int OK = 200;
+	private Jwt jwt;
+	private String resource;
+
+	private final ApiGatewayClientProperties properties;
+
+	@Override
+	public <T> T get(Class<T> tipo) throws Exception {
 		T objeto = null;
 		Reader reader = null;
 
 		HttpClient client = null;
 		HttpGet request = null;
 		HttpResponse response = null;
-		
+
 		log.info("Executando chamada get ao recurso: " + properties.getUri() + this.resource + ". Tipo: " + tipo);
 		try {
-			
+
 			client = HttpClientBuilder.create().build();
 
 			request = new HttpGet(properties.getUri() + this.resource);
@@ -80,10 +80,10 @@ public class Proxy implements HttpAdapter {
 
 			response = client.execute(request);
 			int codigoRetorno = response.getStatusLine().getStatusCode();
-			if(OK == codigoRetorno) {
+			if (OK == codigoRetorno) {
 				reader = getReader(response.getEntity().getContent());
 				objeto = GSON.fromJson(reader, tipo);
-			}else {
+			} else {
 				return processarRetorno(response, tipo);
 			}
 		} catch (IOException e) {
@@ -94,16 +94,16 @@ public class Proxy implements HttpAdapter {
 
 		return objeto;
 	}
-    
-    @Override
-    public <T> List<T> get(List<T> type) throws Exception{
+
+	@Override
+	public <T> List<T> get(List<T> type) throws Exception {
 		Reader reader = null;
 		List<T> colecao = null;
 
 		HttpClient client = null;
 		HttpGet request = null;
 		HttpResponse response = null;
-		
+
 		log.info("Executando chamada get ao recurso: " + properties.getUri() + this.resource);
 
 		try {
@@ -115,13 +115,13 @@ public class Proxy implements HttpAdapter {
 			response = client.execute(request);
 
 			int codigoRetorno = response.getStatusLine().getStatusCode();
-			if(OK == codigoRetorno) {
+			if (OK == codigoRetorno) {
 				reader = getReader(response.getEntity().getContent());
-				colecao = GSON.fromJson(reader,  new ProxyTokenType<T>().getType());
-			}else {
+				colecao = GSON.fromJson(reader, new ProxyTokenType<T>().getType());
+			} else {
 				return processarRetorno(response, type.getClass());
 			}
-			
+
 		} catch (IOException e) {
 			tratarException(e);
 		} finally {
@@ -130,18 +130,18 @@ public class Proxy implements HttpAdapter {
 
 		return colecao;
 	}
-    
-    @Override
-    public <T> T get(Class<T> tipo, String pathParam) throws Exception {
+
+	@Override
+	public <T> T get(Class<T> tipo, String pathParam) throws Exception {
 		StringBuilder newURL = new StringBuilder(this.resource);
 		if (StringUtils.isNotBlank(pathParam)) {
 			newURL.append("/").append(pathParam);
 		}
 		setResource(newURL.toString());
-		return get(tipo);		
+		return get(tipo);
 	}
-	
-    @Override
+
+	@Override
 	public <T> T get(Class<T> tipo, List<String> pathParam) throws Exception {
 		StringBuilder newURL = new StringBuilder(this.resource);
 		if (!Util.isNullOrEmpty(pathParam)) {
@@ -151,7 +151,7 @@ public class Proxy implements HttpAdapter {
 		}
 		setResource(newURL.toString());
 		return get(tipo);
-		
+
 	}
 
 	@Override
@@ -159,30 +159,30 @@ public class Proxy implements HttpAdapter {
 		HttpClient client = null;
 		HttpPost request = null;
 		HttpResponse response = null;
-        try {
-        	client = HttpClientBuilder.create().build();
+		try {
+			client = HttpClientBuilder.create().build();
 
 			request = new HttpPost(properties.getUri() + this.resource);
 			this.configureHeader(request);
-			
+
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
 			request.setEntity(objetoJson);
 
 			response = client.execute(request);
 			return processarRetorno(response, type.getClass());
-			
+
 		} catch (Exception e) {
 			throw new BusinessException("Falha ao fazer a requisição ao servidor!");
 		}
 	}
-	
+
 	@Override
 	public <T> T post(T objeto) throws Exception {
 		HttpClient client = null;
 		HttpPost request = null;
 		HttpResponse response = null;
-        try {       	
-        	client = HttpClientBuilder.create().build();
+		try {
+			client = HttpClientBuilder.create().build();
 
 			request = new HttpPost(properties.getUri() + this.resource);
 			this.configureHeader(request);
@@ -190,14 +190,14 @@ public class Proxy implements HttpAdapter {
 			request.setEntity(objetoJson);
 
 			response = client.execute(request);
-			
+
 			return processarRetorno(response, objeto.getClass());
-			
+
 		} catch (Exception e) {
 			throw new BusinessException("Falha ao fazer a requisição ao servidor!");
 		}
 	}
-	
+
 	@Override
 	public <V, T> List<V> post(T objeto, List<V> type) throws Exception {
 		Reader reader = null;
@@ -206,7 +206,7 @@ public class Proxy implements HttpAdapter {
 		HttpClient client = null;
 		HttpPost request = null;
 		HttpResponse response = null;
-		
+
 		try {
 			client = HttpClientBuilder.create().build();
 
@@ -215,17 +215,17 @@ public class Proxy implements HttpAdapter {
 
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
 			request.setEntity(objetoJson);
-			
+
 			response = client.execute(request);
 
 			int codigoRetorno = response.getStatusLine().getStatusCode();
-			if(OK == codigoRetorno) {
+			if (OK == codigoRetorno) {
 				reader = getReader(response.getEntity().getContent());
-				colecao = GSON.fromJson(reader,  new ProxyTokenType<V>().getType());
-			}else {
+				colecao = GSON.fromJson(reader, new ProxyTokenType<V>().getType());
+			} else {
 				return processarRetorno(response, type.getClass());
 			}
-			
+
 		} catch (IOException e) {
 			tratarException(e);
 		} finally {
@@ -234,7 +234,7 @@ public class Proxy implements HttpAdapter {
 
 		return colecao;
 	}
-	
+
 	@Override
 	public <V> List<V> post(File objeto, List<V> type) throws Exception {
 		Reader reader = null;
@@ -243,7 +243,7 @@ public class Proxy implements HttpAdapter {
 		HttpClient client = null;
 		HttpPost request = null;
 		HttpResponse response = null;
-		
+
 		try {
 			client = HttpClientBuilder.create().build();
 
@@ -252,17 +252,17 @@ public class Proxy implements HttpAdapter {
 
 			FileEntity objetoJson = new FileEntity(objeto, ContentType.MULTIPART_FORM_DATA);
 			request.setEntity(objetoJson);
-			
+
 			response = client.execute(request);
 
 			int codigoRetorno = response.getStatusLine().getStatusCode();
-			if(OK == codigoRetorno) {
+			if (OK == codigoRetorno) {
 				reader = getReader(response.getEntity().getContent());
-				colecao = GSON.fromJson(reader,  new ProxyTokenType<V>().getType());
-			}else {
+				colecao = GSON.fromJson(reader, new ProxyTokenType<V>().getType());
+			} else {
 				return processarRetorno(response, type.getClass());
 			}
-			
+
 		} catch (IOException e) {
 			tratarException(e);
 		} finally {
@@ -289,7 +289,7 @@ public class Proxy implements HttpAdapter {
 
 			response = client.execute(request);
 			return processarRetorno(response, objeto.getClass());
-			
+
 		} catch (IOException e) {
 			tratarException(e);
 		} finally {
@@ -306,7 +306,7 @@ public class Proxy implements HttpAdapter {
 		HttpClient client = null;
 		HttpPut request = null;
 		HttpResponse response = null;
-		
+
 		try {
 			client = HttpClientBuilder.create().build();
 
@@ -319,13 +319,13 @@ public class Proxy implements HttpAdapter {
 			response = client.execute(request);
 
 			int codigoRetorno = response.getStatusLine().getStatusCode();
-			if(OK == codigoRetorno) {
+			if (OK == codigoRetorno) {
 				reader = getReader(response.getEntity().getContent());
-				colecao = GSON.fromJson(reader,  new ProxyTokenType<V>().getType());
-			}else {
+				colecao = GSON.fromJson(reader, new ProxyTokenType<V>().getType());
+			} else {
 				return processarRetorno(response, type.getClass());
 			}
-			
+
 		} catch (IOException e) {
 			tratarException(e);
 		} finally {
@@ -342,12 +342,12 @@ public class Proxy implements HttpAdapter {
 			newURL.append("/").append(pathParam);
 		}
 		setResource(newURL.toString());
-		
+
 		return put(objeto);
 	}
-	
+
 	@Override
-	public <T> T put(List<String> pathParam, T objeto) throws Exception{
+	public <T> T put(List<String> pathParam, T objeto) throws Exception {
 		StringBuilder newURL = new StringBuilder(this.resource);
 		if (!Util.isNullOrEmpty(pathParam)) {
 			for (String vlParametro : pathParam) {
@@ -355,10 +355,10 @@ public class Proxy implements HttpAdapter {
 			}
 		}
 		setResource(newURL.toString());
-		
+
 		return put(objeto);
 	}
-	
+
 	@Override
 	public <T> T delete() throws Exception {
 		HttpClient client = null;
@@ -373,7 +373,7 @@ public class Proxy implements HttpAdapter {
 
 			response = client.execute(request);
 			return processarRetorno(response, Boolean.class);
-			
+
 		} catch (IOException e) {
 			tratarException(e);
 		} finally {
@@ -396,7 +396,7 @@ public class Proxy implements HttpAdapter {
 
 			response = client.execute(request);
 			return processarRetorno(response, objeto.getClass());
-			
+
 		} catch (IOException e) {
 			tratarException(e);
 		} finally {
@@ -404,7 +404,7 @@ public class Proxy implements HttpAdapter {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public <T> T delete(String pathParam) throws Exception {
 		StringBuilder newURL = new StringBuilder(this.resource);
@@ -412,10 +412,10 @@ public class Proxy implements HttpAdapter {
 			newURL.append("/").append(pathParam);
 		}
 		setResource(newURL.toString());
-		
+
 		return delete();
 	}
-	
+
 	@Override
 	public <T> T delete(List<String> pathParam) throws Exception {
 		StringBuilder newURL = new StringBuilder(this.resource);
@@ -425,20 +425,19 @@ public class Proxy implements HttpAdapter {
 			}
 		}
 		setResource(newURL.toString());
-		
+
 		return delete();
 	}
-	
-	private <T> T processarRetorno(HttpResponse response, Type classType)
-			throws IOException, Exception {
+
+	private <T> T processarRetorno(HttpResponse response, Type classType) throws IOException, Exception {
 		T retorno = null;
 		int codigoRetorno = response.getStatusLine().getStatusCode();
 		if (OK == codigoRetorno) {
 			retorno = GSON.fromJson(getReader(response.getEntity().getContent()), classType);
-		} 
+		}
 		return retorno;
 	}
-		
+
 	private void configureHeader(HttpMessage request) throws Exception {
 		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
@@ -446,10 +445,10 @@ public class Proxy implements HttpAdapter {
 		if (Objects.isNull(applicationToken)) {
 			throw new BusinessException("Não autorizado!");
 		}
-		
+
 		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
 	}
-	
+
 	private void configureHeaderFile(HttpMessage request) throws Exception {
 		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA);
 		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
@@ -457,16 +456,15 @@ public class Proxy implements HttpAdapter {
 		if (applicationToken == null) {
 			throw new BusinessException("Não autorizado!");
 		}
-		
+
 		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
 	}
 
 	private static void tratarException(IOException e) throws Exception {
-		String message = e.getMessage() != null ? e.getMessage()
-				: "";
+		String message = e.getMessage() != null ? e.getMessage() : "";
 		throw new BusinessException(message, e);
 	}
-	
+
 	private static void finalizar(Reader reader, HttpRequestBase request) {
 		finalizar(request);
 		if (reader != null) {
@@ -477,7 +475,7 @@ public class Proxy implements HttpAdapter {
 			}
 		}
 	}
-	
+
 	private static void finalizar(HttpRequestBase request) {
 		if (request != null) {
 			request.reset();
@@ -491,11 +489,11 @@ public class Proxy implements HttpAdapter {
 	protected static DateDeserializer getDateDeserializer() {
 		return new DateDeserializer();
 	}
-	
+
 	protected Reader getReader(InputStream content) {
 		return new InputStreamReader(content, StandardCharsets.UTF_8);
 	}
-	
+
 	private static class ProxyTokenType<T> extends TypeToken<ArrayList<T>> {
-    }
+	}
 }
