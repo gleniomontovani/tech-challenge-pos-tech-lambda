@@ -13,5 +13,9 @@ public class Constantes {
 	
 	public static final String MSG_ERRO_TITULO_BAD_REQUEST				= "Erro na requisição!";
 	public static final String MSG_ERRO_TITUL_INTERNAL_SERVER			= "Erro interno no servidor!";
+	
+	
+	public static final String STRING_VAZIA = "";
+	public static final String STRING_ESPACO = " ";
 
 }

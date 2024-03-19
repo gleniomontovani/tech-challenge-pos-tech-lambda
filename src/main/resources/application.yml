@@ -16,6 +16,9 @@ api:
         path:
           listall: /clientes
           byid: /clientes
+          save: /clientes
+          update: /clientes
+          delete: /clientes/desativar
       pedido:
         path:
           listall: /pedidos

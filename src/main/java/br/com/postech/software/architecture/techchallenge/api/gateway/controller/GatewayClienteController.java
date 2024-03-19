@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.postech.software.architecture.techchallenge.api.gateway.configuration.ClienteProperties;
+import br.com.postech.software.architecture.techchallenge.api.gateway.model.Cliente;
 import br.com.postech.software.architecture.techchallenge.api.gateway.service.http.Proxy;
 import lombok.RequiredArgsConstructor;
 
@@ -50,14 +52,30 @@ public class GatewayClienteController {
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 	@PreAuthorize("hasAuthority('SCOPE_fiap/postech/techchallenge')")
-	public Object salvarCliente() {
-		return "Autenticado...";
+	public Object salvarCliente(@AuthenticationPrincipal Jwt principal, @RequestBody Cliente cliente) throws Exception {
+		proxy.setJwt(principal);
+		proxy.setResource(properties.getSave());
+		
+		return proxy.post(cliente);
 	}
 
 	@PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
 	@PreAuthorize("hasAuthority('SCOPE_fiap/postech/techchallenge')")
-	public Object atualizarCliente() {
-		return "Autenticado...";
+	public Object atualizarCliente(@AuthenticationPrincipal Jwt principal, @PathVariable Long id, @RequestBody Cliente cliente) throws Exception {
+		proxy.setJwt(principal);
+		proxy.setResource(properties.getUpdate());
+		String pathParam = Objects.nonNull(id) ? id.toString() : null;
+		
+		return proxy.put(cliente, pathParam);
 	}
 
+	@PutMapping(value = "/desativar/{id}", produces = MediaType.APPLICATION_JSON)
+	@PreAuthorize("hasAuthority('SCOPE_fiap/postech/techchallenge')")
+    public Object desativarCliente(@AuthenticationPrincipal Jwt principal, @PathVariable Long id) throws Exception {
+		proxy.setJwt(principal);
+		proxy.setResource(properties.getDelete());
+		String pathParam = Objects.nonNull(id) ? id.toString() : null;
+		
+		return proxy.delete(pathParam);
+	}
 }

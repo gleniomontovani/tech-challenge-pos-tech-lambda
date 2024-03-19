@@ -1,5 +1,6 @@
 package br.com.postech.software.architecture.techchallenge.api.gateway.service.http;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -9,8 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+
+import javax.ws.rs.core.MediaType;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,7 +22,6 @@ import br.com.postech.software.architecture.techchallenge.api.gateway.configurat
 import br.com.postech.software.architecture.techchallenge.api.gateway.service.exception.BusinessException;
 import br.com.postech.software.architecture.techchallenge.api.gateway.service.serializer.DateDeserializer;
 import br.com.postech.software.architecture.techchallenge.api.gateway.service.serializer.DateSerializer;
-import br.com.postech.software.architecture.techchallenge.api.gateway.service.util.Constantes;
 import br.com.postech.software.architecture.techchallenge.api.gateway.service.util.Util;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -31,20 +32,17 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.FileEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
-
-import okhttp3.Call;
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 @Component
 @Data
@@ -56,15 +54,14 @@ public class Proxy implements HttpAdapter {
 	
     private static final String AUTORIZATION 	  =	"Authorization";
     private static final String BEARER 		 	  =	"Bearer ";
-    private static final String MEDIA_TYPE 	 	  =	"application/json; charset=utf-8";
-    private static final String DADOS 		 	  =	"dados";
     
-    private static final int OK 				  = 200;
+    private static final int 	OK 				  = 200;
     private Jwt jwt;
     private String resource;
     
     private final ApiGatewayClientProperties properties;
     
+    @Override
     public <T> T get(Class<T> tipo) throws Exception {
 		T objeto = null;
 		Reader reader = null;
@@ -87,7 +84,7 @@ public class Proxy implements HttpAdapter {
 				reader = getReader(response.getEntity().getContent());
 				objeto = GSON.fromJson(reader, tipo);
 			}else {
-				return processarRetorno(response, "get", tipo);
+				return processarRetorno(response, tipo);
 			}
 		} catch (IOException e) {
 			tratarException(e);
@@ -98,6 +95,7 @@ public class Proxy implements HttpAdapter {
 		return objeto;
 	}
     
+    @Override
     public <T> List<T> get(List<T> type) throws Exception{
 		Reader reader = null;
 		List<T> colecao = null;
@@ -121,7 +119,7 @@ public class Proxy implements HttpAdapter {
 				reader = getReader(response.getEntity().getContent());
 				colecao = GSON.fromJson(reader,  new ProxyTokenType<T>().getType());
 			}else {
-				return processarRetorno(response, "get", type.getClass());
+				return processarRetorno(response, type.getClass());
 			}
 			
 		} catch (IOException e) {
@@ -133,6 +131,7 @@ public class Proxy implements HttpAdapter {
 		return colecao;
 	}
     
+    @Override
     public <T> T get(Class<T> tipo, String pathParam) throws Exception {
 		StringBuilder newURL = new StringBuilder(this.resource);
 		if (StringUtils.isNotBlank(pathParam)) {
@@ -142,6 +141,7 @@ public class Proxy implements HttpAdapter {
 		return get(tipo);		
 	}
 	
+    @Override
 	public <T> T get(Class<T> tipo, List<String> pathParam) throws Exception {
 		StringBuilder newURL = new StringBuilder(this.resource);
 		if (!Util.isNullOrEmpty(pathParam)) {
@@ -154,110 +154,282 @@ public class Proxy implements HttpAdapter {
 		
 	}
 
-	/**
-	 * Metodo post para envio de requisição. Este metodo ira retornar object.
-	 * 
-	 * @param url - URL que será feita a requisição.
-	 * @param parametros - Os parametros da requisicao. Isso inclui os headers.
-	 * */
-	@SuppressWarnings("deprecation")
 	@Override
-	public <T> T post(String url, Map<String, Object> parametros, Class<T> type) throws Exception {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		MediaType mediaJson = MediaType.parse(MEDIA_TYPE);
-		Request request   = null;
-		Response response = null;
+	public <T> T post(T objeto, Class<T> type) throws Exception {
+		HttpClient client = null;
+		HttpPost request = null;
+		HttpResponse response = null;
         try {
-        	RequestBody body = RequestBody.create(mediaJson, Util.removerCaracteres(gson.toJson(parametros.get(DADOS))));
-           
-        	Headers headers = obterHeaders(parametros);
-        	request = new Request.Builder()
-            		.url(url)
-            		.post(body)
-            		.headers(headers)
-                    .build();
-        	
-            Call chamador = new OkHttpClient().newCall(request);
-			response = chamador.execute();
+        	client = HttpClientBuilder.create().build();
+
+			request = new HttpPost(properties.getUri() + this.resource);
+			this.configureHeader(request);
 			
+			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
+			request.setEntity(objetoJson);
+
+			response = client.execute(request);
 			return processarRetorno(response, type.getClass());
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new BusinessException("Falha ao fazer a requisição ao servidor!");
 		}
 	}
 	
-	/**
-	 * Metodo post para envio de requisição. Este metodo ira retornar uma String em formato JSON
-	 * 
-	 * @param url - URL que será feita a requisição.
-	 * @param parametros - Os parametros da requisicao. Isso inclui os headers.
-	 * */
-	
-	@SuppressWarnings("deprecation")
 	@Override
-	public <T> T post(String url, Map<String, Object> parametros) throws Exception {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		MediaType mediaJson = MediaType.parse(MEDIA_TYPE);
-		Request request   = null;
-		Response response = null;
-        try {
-        	RequestBody body = RequestBody.create(mediaJson, Util.removerCaracteres(gson.toJson(parametros.get(DADOS))));
-           
-        	Headers headers = obterHeaders(parametros);
-        	request = new Request.Builder()
-            		.url(url)
-            		.post(body)
-            		.headers(headers)
-                    .build();
-        	
-            Call chamador = new OkHttpClient().newCall(request);
-			response = chamador.execute();
+	public <T> T post(T objeto) throws Exception {
+		HttpClient client = null;
+		HttpPost request = null;
+		HttpResponse response = null;
+        try {       	
+        	client = HttpClientBuilder.create().build();
+
+			request = new HttpPost(properties.getUri() + this.resource);
+			this.configureHeader(request);
+			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
+			request.setEntity(objetoJson);
+
+			response = client.execute(request);
 			
-			return processarRetorno(response);
+			return processarRetorno(response, objeto.getClass());
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new BusinessException("Falha ao fazer a requisição ao servidor!");
 		}
+	}
+	
+	@Override
+	public <V, T> List<V> post(T objeto, List<V> type) throws Exception {
+		Reader reader = null;
+		List<V> colecao = null;
+
+		HttpClient client = null;
+		HttpPost request = null;
+		HttpResponse response = null;
+		
+		try {
+			client = HttpClientBuilder.create().build();
+
+			request = new HttpPost(properties.getUri() + this.resource);
+			this.configureHeader(request);
+
+			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
+			request.setEntity(objetoJson);
+			
+			response = client.execute(request);
+
+			int codigoRetorno = response.getStatusLine().getStatusCode();
+			if(OK == codigoRetorno) {
+				reader = getReader(response.getEntity().getContent());
+				colecao = GSON.fromJson(reader,  new ProxyTokenType<V>().getType());
+			}else {
+				return processarRetorno(response, type.getClass());
+			}
+			
+		} catch (IOException e) {
+			tratarException(e);
+		} finally {
+			finalizar(reader, request);
+		}
+
+		return colecao;
+	}
+	
+	@Override
+	public <V> List<V> post(File objeto, List<V> type) throws Exception {
+		Reader reader = null;
+		List<V> colecao = null;
+
+		HttpClient client = null;
+		HttpPost request = null;
+		HttpResponse response = null;
+		
+		try {
+			client = HttpClientBuilder.create().build();
+
+			request = new HttpPost(properties.getUri() + this.resource);
+			this.configureHeaderFile(request);
+
+			FileEntity objetoJson = new FileEntity(objeto, ContentType.MULTIPART_FORM_DATA);
+			request.setEntity(objetoJson);
+			
+			response = client.execute(request);
+
+			int codigoRetorno = response.getStatusLine().getStatusCode();
+			if(OK == codigoRetorno) {
+				reader = getReader(response.getEntity().getContent());
+				colecao = GSON.fromJson(reader,  new ProxyTokenType<V>().getType());
+			}else {
+				return processarRetorno(response, type.getClass());
+			}
+			
+		} catch (IOException e) {
+			tratarException(e);
+		} finally {
+			finalizar(reader, request);
+		}
+
+		return colecao;
 	}
 
-	private Headers obterHeaders(Map<String, Object> parametros) {
-		Headers.Builder builder = new Headers.Builder();
-		//Estes dois seram fixos, ou seja, sao obrigatorios para qualquer requisicao.
-		builder.add(AUTORIZATION, BEARER+parametros.get(Constantes.PARAMETER_ACCESS_TOKEN));
-		
-		//Obtem os headers para o cabecalho da requisicao
-		Headers headers = builder.build();
-		
-		return headers;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private <T> T processarRetorno(Response response)
-			throws Exception{
-		
-		int codigoRetorno = response.code();		
-		if (OK != codigoRetorno) {
-			throw new BusinessException(HttpStatus.valueOf(codigoRetorno), Util.removerCaracteres(response.body().string()));
+	@Override
+	public <T> T put(T objeto) throws Exception {
+		HttpClient client = null;
+		HttpPut request = null;
+		HttpResponse response = null;
+
+		try {
+			client = HttpClientBuilder.create().build();
+
+			request = new HttpPut(properties.getUri() + this.resource);
+			this.configureHeader(request);
+
+			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
+			request.setEntity(objetoJson);
+
+			response = client.execute(request);
+			return processarRetorno(response, objeto.getClass());
+			
+		} catch (IOException e) {
+			tratarException(e);
+		} finally {
+			finalizar(request);
 		}
-		
-		return (T) response.body().string();
+		return null;
 	}
-	
-	private <T> T processarRetorno(Response response, Type classType)
-			throws Exception{
-		T retorno = null;
-		int codigoRetorno = response.code();
-		if (OK == codigoRetorno) {
-			retorno = GSON.fromJson(getReader(response.body().byteStream()), classType);
-		} else {
-			throw new BusinessException(HttpStatus.valueOf(codigoRetorno), Util.removerCaracteres(response.body().string()));
+
+	@Override
+	public <V, T> List<V> put(T objeto, List<V> type) throws Exception {
+		Reader reader = null;
+		List<V> colecao = null;
+
+		HttpClient client = null;
+		HttpPut request = null;
+		HttpResponse response = null;
+		
+		try {
+			client = HttpClientBuilder.create().build();
+
+			request = new HttpPut(properties.getUri() + this.resource);
+			this.configureHeader(request);
+
+			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
+			request.setEntity(objetoJson);
+
+			response = client.execute(request);
+
+			int codigoRetorno = response.getStatusLine().getStatusCode();
+			if(OK == codigoRetorno) {
+				reader = getReader(response.getEntity().getContent());
+				colecao = GSON.fromJson(reader,  new ProxyTokenType<V>().getType());
+			}else {
+				return processarRetorno(response, type.getClass());
+			}
+			
+		} catch (IOException e) {
+			tratarException(e);
+		} finally {
+			finalizar(reader, request);
 		}
+
+		return colecao;
+	}
+
+	@Override
+	public <T> T put(T objeto, String pathParam) throws Exception {
+		StringBuilder newURL = new StringBuilder(this.resource);
+		if (pathParam != null) {
+			newURL.append("/").append(pathParam);
+		}
+		setResource(newURL.toString());
 		
-		return retorno;
+		return put(objeto);
 	}
 	
-	private <T> T processarRetorno(HttpResponse response, String methodType, Type classType)
+	@Override
+	public <T> T put(List<String> pathParam, T objeto) throws Exception{
+		StringBuilder newURL = new StringBuilder(this.resource);
+		if (!Util.isNullOrEmpty(pathParam)) {
+			for (String vlParametro : pathParam) {
+				newURL.append("/").append(vlParametro);
+			}
+		}
+		setResource(newURL.toString());
+		
+		return put(objeto);
+	}
+	
+	@Override
+	public <T> T delete() throws Exception {
+		HttpClient client = null;
+		HttpDelete request = null;
+		HttpResponse response = null;
+
+		try {
+			client = HttpClientBuilder.create().build();
+
+			request = new HttpDelete(properties.getUri() + this.resource);
+			this.configureHeader(request);
+
+			response = client.execute(request);
+			return processarRetorno(response, Boolean.class);
+			
+		} catch (IOException e) {
+			tratarException(e);
+		} finally {
+			finalizar(request);
+		}
+		return null;
+	}
+
+	@Override
+	public <T> T delete(T objeto) throws Exception {
+		HttpClient client = null;
+		HttpDelete request = null;
+		HttpResponse response = null;
+
+		try {
+			client = HttpClientBuilder.create().build();
+
+			request = new HttpDelete(properties.getUri() + this.resource);
+			this.configureHeader(request);
+
+			response = client.execute(request);
+			return processarRetorno(response, objeto.getClass());
+			
+		} catch (IOException e) {
+			tratarException(e);
+		} finally {
+			finalizar(request);
+		}
+		return null;
+	}
+	
+	@Override
+	public <T> T delete(String pathParam) throws Exception {
+		StringBuilder newURL = new StringBuilder(this.resource);
+		if (pathParam != null) {
+			newURL.append("/").append(pathParam);
+		}
+		setResource(newURL.toString());
+		
+		return delete();
+	}
+	
+	@Override
+	public <T> T delete(List<String> pathParam) throws Exception {
+		StringBuilder newURL = new StringBuilder(this.resource);
+		if (!Util.isNullOrEmpty(pathParam)) {
+			for (String vlParametro : pathParam) {
+				newURL.append("/").append(vlParametro);
+			}
+		}
+		setResource(newURL.toString());
+		
+		return delete();
+	}
+	
+	private <T> T processarRetorno(HttpResponse response, Type classType)
 			throws IOException, Exception {
 		T retorno = null;
 		int codigoRetorno = response.getStatusLine().getStatusCode();
@@ -268,14 +440,25 @@ public class Proxy implements HttpAdapter {
 	}
 		
 	private void configureHeader(HttpMessage request) throws Exception {
-		request.setHeader(HttpHeaders.CONTENT_TYPE, javax.ws.rs.core.MediaType.APPLICATION_JSON);
-		request.addHeader(HttpHeaders.ACCEPT, javax.ws.rs.core.MediaType.APPLICATION_JSON);
+		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
 		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
 		if (Objects.isNull(applicationToken)) {
 			throw new BusinessException("Não autorizado!");
 		}
 		
-		request.addHeader("Authorization", "Bearer "+ applicationToken);
+		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
+	}
+	
+	private void configureHeaderFile(HttpMessage request) throws Exception {
+		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA);
+		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
+		if (applicationToken == null) {
+			throw new BusinessException("Não autorizado!");
+		}
+		
+		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
 	}
 
 	private static void tratarException(IOException e) throws Exception {
