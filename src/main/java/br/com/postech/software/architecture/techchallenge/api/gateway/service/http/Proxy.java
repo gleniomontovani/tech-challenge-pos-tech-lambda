@@ -18,7 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import br.com.postech.software.architecture.techchallenge.api.gateway.configuration.ApiGatewayClientProperties;
+import br.com.postech.software.architecture.techchallenge.api.gateway.configuration.ApiClientProperties;
 import br.com.postech.software.architecture.techchallenge.api.gateway.service.exception.BusinessException;
 import br.com.postech.software.architecture.techchallenge.api.gateway.service.serializer.DateDeserializer;
 import br.com.postech.software.architecture.techchallenge.api.gateway.service.serializer.DateSerializer;
@@ -59,7 +59,7 @@ public class Proxy implements HttpAdapter {
 	private Jwt jwt;
 	private String resource;
 
-	private final ApiGatewayClientProperties properties;
+	private final ApiClientProperties properties;
 
 	@Override
 	public <T> T get(Class<T> tipo) throws Exception {
@@ -129,6 +129,16 @@ public class Proxy implements HttpAdapter {
 		}
 
 		return colecao;
+	}
+	
+	@Override
+	public <T> List<T>  get(List<T> type, String pathParam) throws Exception {
+		StringBuilder newURL = new StringBuilder(this.resource);
+		if (StringUtils.isNotBlank(pathParam)) {
+			newURL.append("/").append(pathParam);
+		}
+		setResource(newURL.toString());
+		return get(type);
 	}
 
 	@Override

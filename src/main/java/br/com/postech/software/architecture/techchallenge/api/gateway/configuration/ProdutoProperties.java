@@ -5,8 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import lombok.Data;
 
 @Data
-@ConfigurationProperties(prefix = "api.client.server.cliente.path")
-public class ClienteProperties {
+@ConfigurationProperties(prefix = "api.client.server.produto.path")
+public class ProdutoProperties {
 
 	private String listall;
 	private String byid;
