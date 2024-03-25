@@ -5,8 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import lombok.Data;
 
 @Data
-@ConfigurationProperties(prefix = "api.gateway.server")
-public class ApiGatewayClientProperties {
+@ConfigurationProperties(prefix = "api.client.server")
+public class ApiClientProperties {
 
 	private String uri;
 }

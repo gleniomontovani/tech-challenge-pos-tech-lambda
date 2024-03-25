@@ -7,6 +7,8 @@ public interface HttpAdapter {
 	<T> T get(Class<T> tipo) throws Exception;
 
 	<T> List<T> get(List<T> type) throws Exception;
+	
+	<T> List<T>  get(List<T> type, String pathParam) throws Exception;
 
 	<T> T get(Class<T> tipo, String pathParam) throws Exception;
 

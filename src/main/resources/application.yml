@@ -9,7 +9,7 @@ spring:
           issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_vbdpFRKPg
 
 api:          
-  gateway:
+  client:
     server:
       uri: http://localhost:8081/v1
       cliente:
@@ -22,8 +22,17 @@ api:
       pedido:
         path:
           listall: /pedidos
-          byid: /pedidos
+          byNumber: /pedidos
+          save: /pedidos/checkout
+          update: /pedidos/status
       produto:
         path:
           listall: /produtos
           byid: /produtos
+          save: /produtos
+          upade: /produtos
+          delete: /produtos
+      pagamento:    
+        path:
+          byNumber: /pagamentos
+          history: /historico
