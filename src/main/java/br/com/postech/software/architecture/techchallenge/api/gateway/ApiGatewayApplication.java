@@ -13,7 +13,7 @@ import br.com.postech.software.architecture.techchallenge.api.gateway.configurat
 
 @SpringBootApplication
 //@EnableWebSecurity
-@EnableConfigurationProperties({ ApiClientProperties.class, ClienteProperties.class, ProdutoProperties.class,
+@EnableConfigurationProperties({ ClienteProperties.class, ProdutoProperties.class,
 		PedidoProperties.class, PagamentoProperties.class })
 public class ApiGatewayApplication {
 
