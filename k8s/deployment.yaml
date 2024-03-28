@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tech-challenge-gateway
+  labels:
+    app: tech-challenge-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tech-challenge-gateway
+  template:
+    metadata:
+      labels:
+        app: tech-challenge-gateway
+    spec:
+      containers:
+        - name: tech-challenge-gateway
+          image: gleniomontovani/tech-challenge-gateway:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: URL_CLIENT_SERVER
+              value: ${URL_CLIENT_SERVER}                      
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "500m"
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: dockerhub-secret
+                        
