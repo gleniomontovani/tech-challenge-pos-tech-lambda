@@ -1,12 +1,24 @@
 package br.com.postech.software.architecture.techchallenge.api.gateway.configuration;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
-import lombok.Data;
-
-@Data
-@ConfigurationProperties(prefix = "api.client.server")
+@Component
 public class ApiClientProperties {
 
-	private String uri;
+    private String uri;
+
+    @Autowired
+    public ApiClientProperties(Environment env) {
+        this.uri = env.getProperty("URL_CLIENT_SERVER");
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
 }
