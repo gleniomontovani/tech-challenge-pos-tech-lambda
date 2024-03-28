@@ -6,7 +6,7 @@ COPY src/ /app/src
 RUN mvn clean install -DskipTests
 
 
-FROM adoptopenjdk:17-jre-hotspot
+FROM eclipse-temurin:17-jdk-alpine
 EXPOSE 8080
 COPY --from=build /app/target/tech-challenge-pos-tech-lambda-1.0.0.jar tech-challenge-pos-tech-lambda.jar
 
