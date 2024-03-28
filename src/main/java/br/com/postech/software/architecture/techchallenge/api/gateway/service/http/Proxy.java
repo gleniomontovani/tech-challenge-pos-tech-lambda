@@ -41,7 +41,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.security.oauth2.jwt.Jwt;
+//import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -56,7 +56,7 @@ public class Proxy implements HttpAdapter {
 	private static final String BEARER = "Bearer ";
 
 	private static final int OK = 200;
-	private Jwt jwt;
+//	private Jwt jwt;
 	private String resource;
 
 	private final ApiClientProperties properties;
@@ -449,25 +449,25 @@ public class Proxy implements HttpAdapter {
 	}
 
 	private void configureHeader(HttpMessage request) throws Exception {
-		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
-		if (Objects.isNull(applicationToken)) {
-			throw new BusinessException("Não autorizado!");
-		}
-
-		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
+//		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+//		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+//		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
+//		if (Objects.isNull(applicationToken)) {
+//			throw new BusinessException("Não autorizado!");
+//		}
+//
+//		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
 	}
 
 	private void configureHeaderFile(HttpMessage request) throws Exception {
-		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA);
-		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
-		if (applicationToken == null) {
-			throw new BusinessException("Não autorizado!");
-		}
-
-		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
+//		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA);
+//		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+//		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
+//		if (applicationToken == null) {
+//			throw new BusinessException("Não autorizado!");
+//		}
+//
+//		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
 	}
 
 	private static void tratarException(IOException e) throws Exception {

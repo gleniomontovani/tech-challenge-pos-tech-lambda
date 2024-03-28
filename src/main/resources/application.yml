@@ -1,17 +1,17 @@
 server:
   port : 8080
 
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_vbdpFRKPg
+#spring:
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_vbdpFRKPg
 
 api:          
   client:
     server:
-      uri: http://localhost:8081/v1
+      uri: http://${URL_CLIENT_SERVER}:8081/v1
       cliente:
         path:
           listall: /clientes
