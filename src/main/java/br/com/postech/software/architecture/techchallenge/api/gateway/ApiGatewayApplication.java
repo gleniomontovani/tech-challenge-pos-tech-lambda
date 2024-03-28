@@ -3,7 +3,7 @@ package br.com.postech.software.architecture.techchallenge.api.gateway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import br.com.postech.software.architecture.techchallenge.api.gateway.configuration.ApiClientProperties;
 import br.com.postech.software.architecture.techchallenge.api.gateway.configuration.ClienteProperties;
@@ -12,7 +12,7 @@ import br.com.postech.software.architecture.techchallenge.api.gateway.configurat
 import br.com.postech.software.architecture.techchallenge.api.gateway.configuration.ProdutoProperties;
 
 @SpringBootApplication
-@EnableWebSecurity
+//@EnableWebSecurity
 @EnableConfigurationProperties({ ApiClientProperties.class, ClienteProperties.class, ProdutoProperties.class,
 		PedidoProperties.class, PagamentoProperties.class })
 public class ApiGatewayApplication {

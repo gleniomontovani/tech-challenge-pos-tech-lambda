@@ -11,7 +11,7 @@ server:
 api:          
   client:
     server:
-      uri: http://${URL_CLIENT_SERVER}:32000/v1
+      uri: http://${URL_CLIENT_SERVER}:8081/v1
       cliente:
         path:
           listall: /clientes
