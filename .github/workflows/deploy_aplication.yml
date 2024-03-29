@@ -1,8 +1,7 @@
  name: Build and Deploy API Gateway
 
  on:
-   #pull_request:
-   push:
+   pull_request:
      branches: [main]
 
  jobs:
