@@ -1,8 +1,8 @@
  name: Build and Deploy API Gateway
 
  on:
-   #pull_request:
-   push:
+   pull_request:
+   #push:
      branches: [main]
 
  jobs:
@@ -34,9 +34,9 @@
        - name: Download Environment Variable
          run: |
            aws s3 cp s3://${{ secrets.AWS_BUCKET }}/${{ secrets.AWS_S3_BUCKET_SOURCE_APP }} download.txt
-           URL_CLIENT_SERVER=$(cat download.txt)
+           URL_CLIENT=$(cat download.txt)
            cat download.txt
-           echo "URL_CLIENT_SERVER=$URL_CLIENT_SERVER" >> $GITHUB_ENV
+           echo "URL_CLIENT=$URL_CLIENT" >> $GITHUB_ENV
          env:
            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -55,7 +55,7 @@
          run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
        - name: Build Docker Image
-         run: docker build --build-arg URL_CLIENT_SERVER=$URL_CLIENT_SERVER -t ${{ secrets.DOCKER_IMAGE }} .
+         run: docker build --build-arg URL_CLIENT=$URL_CLIENT -t ${{ secrets.DOCKER_IMAGE }} .
 
        - name: Push Image Docker
          run: docker push ${{ secrets.DOCKER_IMAGE }}
