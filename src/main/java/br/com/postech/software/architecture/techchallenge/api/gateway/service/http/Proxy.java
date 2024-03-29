@@ -69,13 +69,13 @@ public class Proxy implements HttpAdapter {
 		HttpClient client = null;
 		HttpGet request = null;
 		HttpResponse response = null;
-
-		log.info("Executando chamada get ao recurso: " + properties.getUri() + this.resource + ". Tipo: " + tipo);
+        String url = obterUrlServer(properties);
+		log.info("Executando chamada get ao recurso: " + url + this.resource + ". Tipo: " + tipo);
 		try {
 
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpGet(properties.getUri() + this.resource);
+			request = new HttpGet(url + this.resource);
 			this.configureHeader(request);
 
 			response = client.execute(request);
@@ -103,13 +103,13 @@ public class Proxy implements HttpAdapter {
 		HttpClient client = null;
 		HttpGet request = null;
 		HttpResponse response = null;
-
-		log.info("Executando chamada get ao recurso: " + properties.getUri() + this.resource);
+		String url = obterUrlServer(properties);
+		log.info("Executando chamada get ao recurso: " + url + this.resource);
 
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpGet(properties.getUri() + this.resource);
+			request = new HttpGet(url + this.resource);
 			this.configureHeader(request);
 
 			response = client.execute(request);
@@ -171,8 +171,8 @@ public class Proxy implements HttpAdapter {
 		HttpResponse response = null;
 		try {
 			client = HttpClientBuilder.create().build();
-
-			request = new HttpPost(properties.getUri() + this.resource);
+			String url = obterUrlServer(properties);
+			request = new HttpPost(url + this.resource);
 			this.configureHeader(request);
 
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
@@ -193,8 +193,8 @@ public class Proxy implements HttpAdapter {
 		HttpResponse response = null;
 		try {
 			client = HttpClientBuilder.create().build();
-
-			request = new HttpPost(properties.getUri() + this.resource);
+			String url = obterUrlServer(properties);
+			request = new HttpPost(url + this.resource);
 			this.configureHeader(request);
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
 			request.setEntity(objetoJson);
@@ -219,8 +219,8 @@ public class Proxy implements HttpAdapter {
 
 		try {
 			client = HttpClientBuilder.create().build();
-
-			request = new HttpPost(properties.getUri() + this.resource);
+			String url = obterUrlServer(properties);
+			request = new HttpPost(url + this.resource);
 			this.configureHeader(request);
 
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
@@ -256,8 +256,8 @@ public class Proxy implements HttpAdapter {
 
 		try {
 			client = HttpClientBuilder.create().build();
-
-			request = new HttpPost(properties.getUri() + this.resource);
+			String url = obterUrlServer(properties);
+			request = new HttpPost(url + this.resource);
 			this.configureHeaderFile(request);
 
 			FileEntity objetoJson = new FileEntity(objeto, ContentType.MULTIPART_FORM_DATA);
@@ -290,8 +290,8 @@ public class Proxy implements HttpAdapter {
 
 		try {
 			client = HttpClientBuilder.create().build();
-
-			request = new HttpPut(properties.getUri() + this.resource);
+			String url = obterUrlServer(properties);
+			request = new HttpPut(url + this.resource);
 			this.configureHeader(request);
 
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
@@ -319,8 +319,8 @@ public class Proxy implements HttpAdapter {
 
 		try {
 			client = HttpClientBuilder.create().build();
-
-			request = new HttpPut(properties.getUri() + this.resource);
+			String url = obterUrlServer(properties);
+			request = new HttpPut(url + this.resource);
 			this.configureHeader(request);
 
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
@@ -377,8 +377,8 @@ public class Proxy implements HttpAdapter {
 
 		try {
 			client = HttpClientBuilder.create().build();
-
-			request = new HttpDelete(properties.getUri() + this.resource);
+			String url = obterUrlServer(properties);
+			request = new HttpDelete(url + this.resource);
 			this.configureHeader(request);
 
 			response = client.execute(request);
@@ -400,8 +400,8 @@ public class Proxy implements HttpAdapter {
 
 		try {
 			client = HttpClientBuilder.create().build();
-
-			request = new HttpDelete(properties.getUri() + this.resource);
+			String url = obterUrlServer(properties);
+			request = new HttpDelete(url + this.resource);
 			this.configureHeader(request);
 
 			response = client.execute(request);
@@ -490,6 +490,17 @@ public class Proxy implements HttpAdapter {
 		if (request != null) {
 			request.reset();
 		}
+	}
+	
+	private static String obterUrlServer(ApiClientProperties properties) {
+		log.debug("O valor de URI e: {}", properties.getUri());
+		String url = null;
+		if (Objects.nonNull(properties) && StringUtils.isNotBlank(properties.getUri())) {
+			url = "http://"+properties.getUri()+":8081/v1";
+		}
+		
+		log.debug("O valor da URL será: {}", url);
+		return url;
 	}
 
 	protected static DateSerializer getDateSerializer() {
