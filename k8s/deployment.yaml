@@ -22,7 +22,7 @@ spec:
             - containerPort: 8080
           env:
             - name: URL_CLIENT_SERVER
-              value: http://${URL_CLIENT_SERVER}:8081/v1                      
+              value: http://${URL_CLIENT}:8081/v1                      
           resources:
             requests:
               memory: "512Mi"
