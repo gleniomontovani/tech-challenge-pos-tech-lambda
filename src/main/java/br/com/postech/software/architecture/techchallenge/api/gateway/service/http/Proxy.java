@@ -76,7 +76,7 @@ public class Proxy implements HttpAdapter {
 			client = HttpClientBuilder.create().build();
 
 			request = new HttpGet(properties.getUri() + this.resource);
-			this.configureHeader(request);
+//			this.configureHeader(request);
 
 			response = client.execute(request);
 			int codigoRetorno = response.getStatusLine().getStatusCode();
