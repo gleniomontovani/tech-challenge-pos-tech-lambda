@@ -76,7 +76,7 @@ public class Proxy implements HttpAdapter {
 			client = HttpClientBuilder.create().build();
 
 			request = new HttpGet(properties.getUri() + this.resource);
-//			this.configureHeader(request);
+			this.configureHeader(request);
 
 			response = client.execute(request);
 			int codigoRetorno = response.getStatusLine().getStatusCode();
@@ -449,8 +449,8 @@ public class Proxy implements HttpAdapter {
 	}
 
 	private void configureHeader(HttpMessage request) throws Exception {
-//		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-//		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
 //		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
 //		if (Objects.isNull(applicationToken)) {
 //			throw new BusinessException("Não autorizado!");
@@ -460,8 +460,8 @@ public class Proxy implements HttpAdapter {
 	}
 
 	private void configureHeaderFile(HttpMessage request) throws Exception {
-//		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA);
-//		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA);
+		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
 //		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
 //		if (applicationToken == null) {
 //			throw new BusinessException("Não autorizado!");
