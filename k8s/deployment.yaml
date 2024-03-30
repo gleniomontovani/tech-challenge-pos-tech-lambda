@@ -22,7 +22,9 @@ spec:
             - containerPort: 8080
           env:
             - name: URL_CLIENT_SERVER
-              value: http://${URL_CLIENT}:8081/v1                      
+              value: http://${URL_CLIENT}:8081/v1
+            - name: COGNITO
+              value: ${URL_COGNITO}                            
           resources:
             requests:
               memory: "512Mi"
