@@ -41,7 +41,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-//import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -56,10 +56,9 @@ public class Proxy implements HttpAdapter {
 	private static final String BEARER = "Bearer ";
 
 	private static final int OK = 200;
-//	private Jwt jwt;
+	private Jwt jwt;
 	private String resource;
-
-	private final ApiClientProperties properties;
+	private final ApiClientProperties apiProperties;
 
 	@Override
 	public <T> T get(Class<T> tipo) throws Exception {
@@ -70,12 +69,12 @@ public class Proxy implements HttpAdapter {
 		HttpGet request = null;
 		HttpResponse response = null;
 
-		log.info("Executando chamada get ao recurso: " + properties.getUri() + this.resource + ". Tipo: " + tipo);
+		log.info("Executando chamada get ao recurso: " + apiProperties.getUri() + this.resource + ". Tipo: " + tipo);
 		try {
 
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpGet(properties.getUri() + this.resource);
+			request = new HttpGet(apiProperties.getUri() + this.resource);
 			this.configureHeader(request);
 
 			response = client.execute(request);
@@ -104,12 +103,12 @@ public class Proxy implements HttpAdapter {
 		HttpGet request = null;
 		HttpResponse response = null;
 
-		log.info("Executando chamada get ao recurso: " + properties.getUri() + this.resource);
+		log.info("Executando chamada get ao recurso: " + apiProperties.getUri() + this.resource);
 
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpGet(properties.getUri() + this.resource);
+			request = new HttpGet(apiProperties.getUri() + this.resource);
 			this.configureHeader(request);
 
 			response = client.execute(request);
@@ -172,7 +171,7 @@ public class Proxy implements HttpAdapter {
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpPost(properties.getUri() + this.resource);
+			request = new HttpPost(apiProperties.getUri() + this.resource);
 			this.configureHeader(request);
 
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
@@ -194,7 +193,7 @@ public class Proxy implements HttpAdapter {
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpPost(properties.getUri() + this.resource);
+			request = new HttpPost(apiProperties.getUri() + this.resource);
 			this.configureHeader(request);
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
 			request.setEntity(objetoJson);
@@ -220,7 +219,7 @@ public class Proxy implements HttpAdapter {
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpPost(properties.getUri() + this.resource);
+			request = new HttpPost(apiProperties.getUri() + this.resource);
 			this.configureHeader(request);
 
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
@@ -257,7 +256,7 @@ public class Proxy implements HttpAdapter {
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpPost(properties.getUri() + this.resource);
+			request = new HttpPost(apiProperties.getUri() + this.resource);
 			this.configureHeaderFile(request);
 
 			FileEntity objetoJson = new FileEntity(objeto, ContentType.MULTIPART_FORM_DATA);
@@ -291,7 +290,7 @@ public class Proxy implements HttpAdapter {
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpPut(properties.getUri() + this.resource);
+			request = new HttpPut(apiProperties.getUri() + this.resource);
 			this.configureHeader(request);
 
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
@@ -320,7 +319,7 @@ public class Proxy implements HttpAdapter {
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpPut(properties.getUri() + this.resource);
+			request = new HttpPut(apiProperties.getUri() + this.resource);
 			this.configureHeader(request);
 
 			StringEntity objetoJson = new StringEntity(GSON.toJson(objeto), ContentType.APPLICATION_JSON);
@@ -378,7 +377,7 @@ public class Proxy implements HttpAdapter {
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpDelete(properties.getUri() + this.resource);
+			request = new HttpDelete(apiProperties.getUri() + this.resource);
 			this.configureHeader(request);
 
 			response = client.execute(request);
@@ -401,7 +400,7 @@ public class Proxy implements HttpAdapter {
 		try {
 			client = HttpClientBuilder.create().build();
 
-			request = new HttpDelete(properties.getUri() + this.resource);
+			request = new HttpDelete(apiProperties.getUri() + this.resource);
 			this.configureHeader(request);
 
 			response = client.execute(request);
@@ -451,23 +450,19 @@ public class Proxy implements HttpAdapter {
 	private void configureHeader(HttpMessage request) throws Exception {
 		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
 		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-//		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
-//		if (Objects.isNull(applicationToken)) {
-//			throw new BusinessException("Não autorizado!");
-//		}
-//
-//		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
+		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
+		if (Objects.nonNull(applicationToken)) {
+			request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
+		}
 	}
 
 	private void configureHeaderFile(HttpMessage request) throws Exception {
 		request.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.MULTIPART_FORM_DATA);
 		request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
-//		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
-//		if (applicationToken == null) {
-//			throw new BusinessException("Não autorizado!");
-//		}
-//
-//		request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
+		String applicationToken = Objects.nonNull(jwt) ? jwt.getTokenValue() : null;
+		if (Objects.nonNull(applicationToken)) {
+			request.addHeader(AUTORIZATION, BEARER.concat(applicationToken));
+		}
 	}
 
 	private static void tratarException(IOException e) throws Exception {

@@ -1,0 +1,14 @@
+#URL BASE COGNITO -> https://cognito-idp.us-east-1.amazonaws.com/
+#ID USER COGNITO -> us-east-1_vbdpFRKPg
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${URL_COGNITO}
+
+api:
+  client:
+    server:
+      uri: ${URL_CLIENT_SERVER}
