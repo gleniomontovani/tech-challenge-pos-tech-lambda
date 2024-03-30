@@ -24,7 +24,7 @@ spec:
             - name: URL_CLIENT_SERVER
               value: http://${URL_CLIENT}:8081/v1
             - name: COGNITO
-              value: ${URL_COGNITO}                            
+              value: https://cognito-idp.us-east-1.amazonaws.com/${URL_COGNITO}                            
           resources:
             requests:
               memory: "512Mi"
