@@ -11,8 +11,11 @@ EXPOSE 8080
 COPY --from=build /app/target/tech-challenge-pos-tech-gateway-1.0.0.jar tech-challenge-pos-tech-gateway.jar
 
 ARG URL_CLIENT
+ARG URL_COGNITO
 
 ENV URL_CLIENT=$URL_CLIENT
+ENV URL_COGNITO=$URL_COGNITO
+
 ENV JAVA_APP_ARGS="--spring.config.location=/src/main/resources/application.properties"
 
 ENTRYPOINT ["java","-jar","tech-challenge-pos-tech-gateway.jar", "$JAVA_APP_ARGS"]
