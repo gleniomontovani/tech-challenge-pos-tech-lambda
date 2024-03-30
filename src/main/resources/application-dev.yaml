@@ -6,7 +6,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${URL_COGNITO}
+          issuer-uri: ${COGNITO}
 
 api:
   client:
